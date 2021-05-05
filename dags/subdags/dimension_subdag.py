@@ -1,26 +1,28 @@
 from airflow import DAG
-from plugins.operators import LoadDimensionOperator
+from operators import LoadDimensionOperator
 
 
-def load_dimension_dag(
+def load_dimension_tables_dag(
         parent_dag_name,
         task_id,
         redshift_conn_id,
-        aws_credentials_id,
         table,
-        create_sql_stmt,
         append_data,
+        insert_sql_stmt,
         *args, **kwargs):
 
     dag = DAG(
-        f"{parent_dag_name}.{task_id}", **kwargs
+        f"{parent_dag_name}.{task_id}",
+        **kwargs
     )
 
     load_dimension_task = LoadDimensionOperator(
-        task_id='Load_{table}_dim_table',
+        task_id=f'Load_{table}_dim_table',
         dag=dag,
         redshift_conn_id=redshift_conn_id,
         table=table,
         append_data=append_data,
-        sql=create_sql_stmt
+        sql=insert_sql_stmt
     )
+
+    return dag
