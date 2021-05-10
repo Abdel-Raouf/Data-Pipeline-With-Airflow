@@ -7,7 +7,6 @@ class DataQualityOperator(BaseOperator):
 
     ui_color = '#89DA59'
 
-# see how to pass these five tables dynamically to the execute function.
     @apply_defaults
     def __init__(self,
                  redshift_conn_id="",

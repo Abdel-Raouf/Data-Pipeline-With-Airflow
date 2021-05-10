@@ -18,7 +18,7 @@ default_args = {
     'catchup': False
 }
 
-start_date = datetime(2019, 1, 12)
+start_date = datetime(2020, 5, 10)
 
 dag = DAG('sparkify_etl_dag',
           default_args=default_args,
@@ -45,6 +45,8 @@ stage_events_to_redshift = StageToRedshiftOperator(
     format_type='s3://udacity-dend/log_json_path.json',
     s3_bucket='udacity-dend',
     s3_key='log_data',
+    use_partitioning=False,
+    execution_date='{{ execution_date }}',
     redshift_conn_id='redshift',
     aws_credentials_id='aws_credentials'
 )
@@ -58,6 +60,8 @@ stage_songs_to_redshift = StageToRedshiftOperator(
     format_type='auto',
     s3_bucket='udacity-dend',
     s3_key='song_data/A/A/A/',
+    use_partitioning=False,
+    execution_date='{{ execution_date }}',
     redshift_conn_id='redshift',
     aws_credentials_id='aws_credentials'
 )

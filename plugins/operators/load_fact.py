@@ -12,18 +12,28 @@ class LoadFactOperator(BaseOperator):
                  redshift_conn_id="",
                  table="",
                  sql="",
+                 append_data="",
                  *args, **kwargs):
 
         super(LoadFactOperator, self).__init__(*args, **kwargs)
         self.redshift_conn_id = redshift_conn_id
         self.table = table
         self.sql = sql
+        self.append_data = append_data
 
+# TODO : completing the work of append_data parameter.
     def execute(self, context):
         redshift = PostgresHook(postgres_conn_id=self.redshift_conn_id)
 
-        self.log.info("Clearing data from destination Redshift table")
-        redshift.run("DELETE FROM {}".format(self.table))
+        if self.append_data == True:
+            self.log.info(
+                "Append Data to {} Fact table".format(self.table))
+            redshift.run(self.sql)
+        else:
+            self.log.info(
+                "Clearing data from destination Redshift {} table".format(self.table))
+            redshift.run("DELETE FROM {}".format(self.table))
 
-        self.log.info("Adding Data to Songplays Fact table")
-        redshift.run(self.sql)
+            self.log.info(
+                "Insert Data to {} Fact table".format(self.table))
+            redshift.run(self.sql)
