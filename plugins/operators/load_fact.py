@@ -5,6 +5,24 @@ from airflow.utils.decorators import apply_defaults
 
 class LoadFactOperator(BaseOperator):
 
+    """
+
+        LoadFactOperator is a custom Operator that loads and transforms data from Redshift staging table to fact table.
+
+        :param redshift_conn_id: Connection id of the Redshift connection to use
+        :type redshift_conn_id: string    
+            Default is 'redshift'
+
+        :param table: Redshift fact table name, where data will be inserted.
+        :type table: string
+
+        :param sql: Query representing data that will be inserted
+        type sql: string
+
+        :param append_data: if True, we will Append data to the table.
+        :type append_data: Boolean
+    """
+
     ui_color = '#F98866'
 
     @apply_defaults
@@ -21,7 +39,6 @@ class LoadFactOperator(BaseOperator):
         self.sql = sql
         self.append_data = append_data
 
-# TODO : completing the work of append_data parameter.
     def execute(self, context):
         redshift = PostgresHook(postgres_conn_id=self.redshift_conn_id)
 

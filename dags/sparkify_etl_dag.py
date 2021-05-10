@@ -1,3 +1,5 @@
+""" DAG to execute data extract, transform and load pipeline from Amazon S3 to Amazon Redshift """
+
 from datetime import datetime, timedelta
 import os
 from airflow import DAG
@@ -9,6 +11,7 @@ from operators import (StageToRedshiftOperator, LoadFactOperator,
 from helpers import SqlQueries
 from subdags.dimension_subdag import load_dimension_tables_dag
 
+# default parameters provided for our DAG
 default_args = {
     'owner': 'abdelraouf',
     'depends_on_past': False,
@@ -19,6 +22,7 @@ default_args = {
 }
 
 start_date = datetime(2020, 5, 10)
+
 
 dag = DAG('sparkify_etl_dag',
           default_args=default_args,

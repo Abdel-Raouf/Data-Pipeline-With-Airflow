@@ -4,7 +4,16 @@ from airflow.utils.decorators import apply_defaults
 
 
 class DataQualityOperator(BaseOperator):
+    """
+        DataQualityOperator is a custom operator that Performs Data qaulity checks on tables resides in Amazon Redshift DB
 
+        :param redshift_conn_id: Connection id of the Redshift connection to use
+        :type redshift_conn_id: string    
+            Default is 'redshift'
+
+        :params table_{i}(table_1 -> table_7): from one to the seventh tables names to apply checks on.
+        :type table_{i}: string
+    """
     ui_color = '#89DA59'
 
     @apply_defaults

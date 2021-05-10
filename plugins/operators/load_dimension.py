@@ -5,6 +5,23 @@ from airflow.utils.decorators import apply_defaults
 
 class LoadDimensionOperator(BaseOperator):
 
+    """
+        LoadDimensionOperator is a custom operator that loads and transforms data from Redshift staging table to dimension table.
+
+        :param redshift_conn_id: Connection id of the Redshift connection to use
+        :type redshift_conn_id: string    
+            Default is 'redshift'
+
+        :param table: Redshift dimension table name, where data will be inserted.
+        :type table: string
+
+        :param append_data: if True, we will Append data to the table.
+        :type append_data: Boolean
+
+        :param sql: Query representing data that will be inserted
+        type sql: string
+    """
+
     ui_color = '#80BD9E'
 
     @apply_defaults

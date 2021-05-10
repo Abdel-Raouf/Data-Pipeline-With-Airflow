@@ -9,7 +9,40 @@ from dateutil import parser
 class StageToRedshiftOperator(BaseOperator):
     """
 
-        StageToRedshiftOperator is an custom operator that is responsible for copying files from S3 into redshift tables
+        StageToRedshiftOperator is a custom operator that is responsible for copying files from Amazon S3 into Amazon Redshift tables
+
+        :param redshift_conn_id: Connection id of the Redshift connection to use
+        :type redshift_conn_id: string    
+            Default is 'redshift'
+
+        :param aws_credentials_id: Connection id of the AWS credentials to use to access S3 data
+        :type  aws_credentials_id: string
+            Default is 'aws_credentials'
+
+        :param table: Redshift staging table name
+        :type table: string
+
+        :param s3_bucket: Amazon S3 Bucket name where we read the staging data from.
+        :type s3_bucket: string
+
+        :param s3_key: Amazon S3 key folder that exist inside the S3 bucket that conatians that staging data we need.
+        :type s3_key: string
+
+        :param time_format: format of the time that exists in the staging data (that's crucial to redshift to be able to extract the right time format from the staging data)      
+        :type time_format: string
+
+        :param region: the region that our Redshift DB exists in.
+        type region: string
+
+        :param format_type: the format type, which define the paths to reach a specfic directory in a complex structure of directories (mapping file).
+        :type format_type: string
+
+        :param use_partitioning: If true, S3 data will be loaded as partitioned data based on year and month of execution_date
+        :type use_partitioning: boolean
+            Default is 'False'
+
+        :param execution_date: Logical execution date of DAG run (templated -> loaded at run time)
+        :type execution_date: string
     """
 
     ui_color = '#358140'
@@ -39,10 +72,7 @@ class StageToRedshiftOperator(BaseOperator):
                  use_partitioning="",
                  execution_date="",
                  *args, **kwargs):
-        """
-
-         __init__ is an OOP function in python that intialize the object behviour -> (constructor).
-        """
+        """ __init__ is an OOP function in python that intialize the object behviour -> (constructor). """
 
         super(StageToRedshiftOperator, self).__init__(*args, **kwargs)
         self.redshift_conn_id = redshift_conn_id
@@ -72,10 +102,11 @@ class StageToRedshiftOperator(BaseOperator):
         self.log.info(f"Use Partitioning: {self.use_partitioning}")
 
         self.log.info(
-            "Copying data from S3 to {} table in Redshift".format(table))
+            "Copying data from S3 to {} table in Redshift".format(self.table))
         rendered_key = self.s3_key.format(**context)
 
         if self.use_partitioning == True:
+            # If we are using partitioning, setup S3 path to use year and month of execution_date
             s3_path = "s3://{}/{}/{}/{}".format(
                 self.s3_bucket, rendered_key, execution_date.year, execution_date.month)
         else:
@@ -91,4 +122,6 @@ class StageToRedshiftOperator(BaseOperator):
             self.region,
             self.format_type
         )
+
+        # execute the 'formatted_sql' command on Redshift.
         redshift.run(formatted_sql)
