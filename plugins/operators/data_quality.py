@@ -11,25 +11,31 @@ class DataQualityOperator(BaseOperator):
         :type redshift_conn_id: string    
             Default is 'redshift'
 
-        :params table_{i}(table_1 -> table_7): from one to the seventh tables names to apply checks on.
-        :type table_{i}: string
+        :params data_qaulity_checks[]: is a list of dictionaries with the criteria we need to test against.
+        :type data_quality_checks: list
+        :args data_quality_checks[i]: dictionary 
+        :type data_quality_checks[i]: dictionary
+        :dictionary args: 'check_sql_query': A query to check against it's condition.
+                          'targeted_table': The targeted table name we need to apply a check on. 
+                          'test_against': the criteria we need to test against as null.
+                          'expected_result': the result we expect from the query we run against Redshift.
     """
     ui_color = '#89DA59'
 
     @apply_defaults
     def __init__(self,
                  redshift_conn_id="",
-                 data_qaulity_checks=[],
+                 data_quality_checks=[],
                  *args, **kwargs):
 
         super(DataQualityOperator, self).__init__(*args, **kwargs)
         self.redshift_conn_id = redshift_conn_id
-        self.data_qaulity_checks = data_qaulity_checks
+        self.data_quality_checks = data_quality_checks
 
     def execute(self, context):
         redshift = PostgresHook(self.redshift_conn_id)
 
-        for i, dict_params in enumerate(self.data_qaulity_checks):
+        for i, dict_params in enumerate(self.data_quality_checks):
 
             self.log.info(
                 f"Executing Data Quality Check {i}: {dict_params.get('check_sql_query', default = 'This is Not A Valid Query')}")
