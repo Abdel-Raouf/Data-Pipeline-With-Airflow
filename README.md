@@ -75,7 +75,7 @@ This subDAG has the following parameters:
 
 ### Pipeline Tasks Dependencies Management:
 
-![Pipeline Tasks Dependencies Management](https://github.com/Abdel-Raouf/Data-Pipeline-With-Airflow/blob/main/images/Screenshot%20from%202021-05-06%2017-17-29.png)
+![Pipeline Tasks Dependencies Management](https://github.com/Abdel-Raouf/Data-Pipeline-With-Airflow/blob/main/images/Screenshot%20from%202021-05-11%2009-00-32.png)
 
 ## Airflow Setup:
 
