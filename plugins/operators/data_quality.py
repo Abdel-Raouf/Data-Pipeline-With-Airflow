@@ -19,41 +19,43 @@ class DataQualityOperator(BaseOperator):
     @apply_defaults
     def __init__(self,
                  redshift_conn_id="",
-                 table_1="",
-                 table_2="",
-                 table_3="",
-                 table_4="",
-                 table_5="",
-                 table_6="",
-                 table_7="",
+                 data_qaulity_checks=[],
                  *args, **kwargs):
 
         super(DataQualityOperator, self).__init__(*args, **kwargs)
         self.redshift_conn_id = redshift_conn_id
-        self.table_1 = table_1
-        self.table_2 = table_2
-        self.table_3 = table_3
-        self.table_4 = table_4
-        self.table_5 = table_5
-        self.table_6 = table_6
-        self.table_7 = table_7
+        self.data_qaulity_checks = data_qaulity_checks
 
     def execute(self, context):
         redshift = PostgresHook(self.redshift_conn_id)
 
-        tables = [self.table_1, self.table_2, self.table_3,
-                  self.table_4, self.table_5, self.table_6, self.table_7]
-        for table in tables:
-            records = redshift.get_records(
-                f"SELECT COUNT(*) FROM {table}")
-            if len(records) < 1 or len(records[0]) < 1:
-                raise ValueError(
-                    f"Data quality check FAILED. {table} -> contained 0 rows")
+        for i, dict_params in enumerate(self.data_qaulity_checks):
 
-            num_records = records[0][0]
-            if num_records < 1:
+            self.log.info(
+                f"Executing Data Quality Check {i}: {dict_params.get('check_sql_query', default = 'This is Not A Valid Query')}")
+
+            test_against_criteria = redshift.get_records(dict_params.get(
+                'check_sql_query', default='This is Not A Valid Query'))
+
+            default_count_check_query = redshift.get_records(
+                f"SELECT COUNT(*) FROM {dict_params.get('targeted_table')}")
+
+            num_records = default_count_check_query[0][0]
+
+            if len(default_count_check_query) < 1 or len(default_count_check_query[0]) < 1:
                 raise ValueError(
-                    f"Data quality check FAILED. {table} -> contained 0 records")
+                    f"Data quality check FAILED. {dict_params.get('targeted_table')} table -> contains 0 rows")
+            elif num_records < 1:
+                raise ValueError(
+                    f"Data quality check FAILED. {dict_params.get('targeted_table')} -> contains 0 records")
+            elif dict_params.get('test_against') == 'null':
+                raise ValueError(
+                    "Data quality check {}. {} table -> contains {} {} values"
+                    .format('Passed' if dict_params.get('expected_result') == len(test_against_criteria) else "FAILED",
+                            dict_params.get('targeted_table'),
+                            dict_params.get('expected_result'),
+                            dict_params.get('test_against'))
+                )
             else:
                 self.log.info(
-                    f"Data quality on table {table} check PASSED with {num_records} records")
+                    f"Data quality on table {dict_params.get('targeted_table')} PASSED with {num_records} records")

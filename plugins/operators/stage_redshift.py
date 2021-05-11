@@ -37,7 +37,7 @@ class StageToRedshiftOperator(BaseOperator):
         :param format_type: the format type, which define the paths to reach a specfic directory in a complex structure of directories (mapping file).
         :type format_type: string
 
-        :param use_partitioning: If true, S3 data will be loaded as partitioned data based on year and month of execution_date
+        :param use_partitioning: If true, S3 data will be loaded as partitioned data based on year and month of execution_date.
         :type use_partitioning: boolean
             Default is 'False'
 
