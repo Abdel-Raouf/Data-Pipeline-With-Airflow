@@ -33,13 +33,6 @@ dag = DAG('sparkify_etl_dag',
 
 start_operator = DummyOperator(task_id='Begin_execution',  dag=dag)
 
-create_tables_task = PostgresOperator(
-    task_id="create_tables",
-    dag=dag,
-    sql='sql/create_tables.sql',
-    postgres_conn_id="redshift"
-)
-
 stage_events_to_redshift = StageToRedshiftOperator(
     task_id='Stage_events',
     dag=dag,
